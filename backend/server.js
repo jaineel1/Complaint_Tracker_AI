@@ -15,18 +15,7 @@ const gemini = require('./geminiClient');
 const prisma = new PrismaClient();
 const app = express();
 
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
-app.use(cors({
-    origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null, true);
-        return cb(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    credentials: true,
-}));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
