@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../utils/theme';
+import { API_BASE } from '../utils/api';
 import MobileInput from '../components/MobileInput';
 
 const Login = () => {
@@ -32,7 +33,7 @@ const Login = () => {
       const payload = isRegister
         ? { username, password, mobileNumber }
         : { username, password };
-      const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
+      const res = await axios.post(`${API_BASE}${endpoint}`, payload);
 
       if (isRegister) {
         setIsRegister(false);
