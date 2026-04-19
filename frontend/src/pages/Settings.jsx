@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../utils/api';
 import { getRole, getUser } from '../utils/auth';
+import MobileInput from '../components/MobileInput';
 
 const ADMIN_ROLES = ['CUSTOMER', 'CSE', 'QA', 'MANAGER', 'ADMIN'];
 const MANAGER_ROLES = ['CUSTOMER', 'CSE', 'QA'];
@@ -51,6 +52,7 @@ const Settings = () => {
 
   // Profile (mobile number)
   const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileValid, setMobileValid] = useState(false);
   const [profileMsg, setProfileMsg] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
@@ -65,6 +67,11 @@ const Settings = () => {
   const saveMobile = async (e) => {
     e.preventDefault();
     setProfileMsg(null);
+    // If the user typed something, it must be valid. Blank is allowed (clears the number).
+    if (mobileNumber && !mobileValid) {
+      setProfileMsg({ type: 'error', text: 'Mobile number must be exactly 10 digits, or leave it blank to clear.' });
+      return;
+    }
     setProfileLoading(true);
     try {
       const res = await api.put('/api/auth/profile', { mobileNumber });
@@ -242,17 +249,15 @@ const Settings = () => {
                   <label className="text-[10px] font-black uppercase flex items-center gap-2 text-on-surface-variant opacity-70">
                     <span className="material-symbols-outlined text-[16px]">call</span> Mobile Number {isCustomer && <span className="font-normal normal-case opacity-80">(prefilled on complaint submissions)</span>}
                   </label>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="tel"
-                      value={mobileNumber}
-                      onChange={e => setMobileNumber(e.target.value)}
-                      placeholder="+91 XXXXX XXXXX"
-                      className="flex-1 bg-surface-container-low rounded-2xl px-4 py-3 font-bold border-none focus:ring-2 focus:ring-primary/20"
-                    />
+                  <MobileInput
+                    value={mobileNumber}
+                    onChange={setMobileNumber}
+                    onValidity={setMobileValid}
+                  />
+                  <div className="flex justify-end">
                     <button
                       type="submit"
-                      disabled={profileLoading}
+                      disabled={profileLoading || (mobileNumber && !mobileValid)}
                       className="bg-primary text-white font-black px-6 py-3 rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-primary/20 disabled:opacity-50"
                     >
                       {profileLoading ? 'Saving...' : 'Save Number'}

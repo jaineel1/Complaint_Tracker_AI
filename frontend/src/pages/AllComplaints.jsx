@@ -117,10 +117,12 @@ const AllComplaints = () => {
             <span className="material-symbols-outlined text-lg">download</span>
             Export CSV
           </button>
-          <Link to="/submit" className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-5 py-2.5 rounded-lg font-headline font-semibold text-sm flex items-center gap-2 shadow-lg hover:shadow-primary/20 transition-all">
-            <span className="material-symbols-outlined text-lg">add</span>
-            New Complaint
-          </Link>
+          {(role === 'CUSTOMER' || role === 'CSE') && (
+            <Link to="/submit" className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-5 py-2.5 rounded-lg font-headline font-semibold text-sm flex items-center gap-2 shadow-lg hover:shadow-primary/20 transition-all">
+              <span className="material-symbols-outlined text-lg">add</span>
+              New Complaint
+            </Link>
+          )}
         </div>
       </div>
 

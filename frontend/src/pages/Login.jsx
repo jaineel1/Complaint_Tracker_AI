@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../utils/theme';
+import MobileInput from '../components/MobileInput';
 
 const Login = () => {
   const [params] = useSearchParams();
@@ -10,6 +11,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileValid, setMobileValid] = useState(false);
   const [error, setError] = useState('');
   const [isRegister, setIsRegister] = useState(params.get('mode') === 'register');
 
@@ -20,6 +22,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    // Mobile is optional on register, but if supplied it must be valid.
+    if (isRegister && mobileNumber && !mobileValid) {
+      setError('Mobile number must be exactly 10 digits, or leave it blank.');
+      return;
+    }
     try {
       const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
       const payload = isRegister
@@ -122,16 +129,11 @@ const Login = () => {
               <label className="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2">
                 Mobile Number <span className="opacity-60">(optional)</span>
               </label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">call</span>
-                <input
-                  type="tel"
-                  value={mobileNumber}
-                  onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="+91 XXXXX XXXXX"
-                  className="block w-full rounded-xl pl-10 pr-3 py-3 text-sm font-medium bg-surface-container-low border-none focus:ring-2 focus:ring-primary/30 outline-none"
-                />
-              </div>
+              <MobileInput
+                value={mobileNumber}
+                onChange={setMobileNumber}
+                onValidity={setMobileValid}
+              />
               <p className="text-[11px] mt-1.5 text-on-surface-variant opacity-70">
                 Saves typing later — we'll prefill this when you submit a complaint.
               </p>

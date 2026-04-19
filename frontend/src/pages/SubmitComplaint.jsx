@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { API_BASE } from '../utils/api';
 import { getRole } from '../utils/auth';
+import MobileInput from '../components/MobileInput';
 
 const SubmitComplaint = () => {
   const role = getRole() || 'CSE';
@@ -10,6 +11,7 @@ const SubmitComplaint = () => {
   const [text, setText] = useState('');
   const [source, setSource] = useState('web');
   const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileValid, setMobileValid] = useState(false);
   const [profileMobile, setProfileMobile] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState('');
@@ -88,6 +90,15 @@ const SubmitComplaint = () => {
   const handleAnalyze = async (e) => {
     e.preventDefault();
     if (!text) return;
+    // Mobile is required for customers, optional for staff — but if provided, must be 10 digits.
+    if (isCustomer && !mobileValid) {
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!isCustomer && mobileNumber && !mobileValid) {
+      setError('Mobile number must be exactly 10 digits, or leave it blank.');
+      return;
+    }
     setLoading(true);
     setError('');
     setResult(null);
@@ -137,32 +148,32 @@ const SubmitComplaint = () => {
                 />
               </div>
               <div className="space-y-6">
-                <div className="space-y-3">
-                  <label className="block font-label text-sm uppercase tracking-wider text-on-surface-variant font-semibold">Source Channel</label>
-                  <div className="relative">
-                    <select
-                      className="w-full appearance-none bg-surface-container border-none rounded-lg p-4 font-body text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                      value={source}
-                      onChange={(e) => setSource(e.target.value)}
-                    >
-                      <option value="web">Web Portal</option>
-                      <option value="email">Email</option>
-                      <option value="call">Phone Call</option>
-                      <option value="social">Social Media</option>
-                    </select>
-                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                {!isCustomer && (
+                  <div className="space-y-3">
+                    <label className="block font-label text-sm uppercase tracking-wider text-on-surface-variant font-semibold">Source Channel</label>
+                    <div className="relative">
+                      <select
+                        className="w-full appearance-none bg-surface-container border-none rounded-lg p-4 font-body text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                        value={source}
+                        onChange={(e) => setSource(e.target.value)}
+                      >
+                        <option value="web">Web Portal</option>
+                        <option value="email">Email</option>
+                        <option value="call">Phone Call</option>
+                        <option value="social">Social Media</option>
+                      </select>
+                      <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="space-y-3">
                   <label className="block font-label text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
                     Mobile Number {isCustomer && <span className="text-error">*</span>}
                   </label>
-                  <input
-                    className="w-full bg-surface-container-low border-none rounded-2xl p-4 font-body text-on-surface focus:ring-2 focus:ring-primary/20 placeholder:text-outline font-bold"
-                    placeholder="+91 XXXXX XXXXX"
-                    type="tel"
+                  <MobileInput
                     value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
+                    onChange={setMobileNumber}
+                    onValidity={setMobileValid}
                     required={isCustomer}
                   />
                   {isCustomer && profileMobile && (
